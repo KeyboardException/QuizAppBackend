@@ -5,6 +5,11 @@ namespace Model;
 use Blink\Attribute\SensitiveField;
 use Blink\Model;
 
+/**
+ * User model
+ * 
+ * @extends	Model<User>
+ */
 class User extends Model {
 
 	public static String $table = "users";
@@ -33,4 +38,8 @@ class User extends Model {
 	public float $score = 0;
 
 	public int $created;
+
+	public static function getByUsername(String $username): User|null {
+		return static::where("username", $username) -> first();
+	}
 }
