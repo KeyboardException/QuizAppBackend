@@ -62,4 +62,13 @@ class Question extends Model {
 				return parent::processField($name, $value);
 		}
 	}
+
+	public function createAttempt(Attempt $attempt) {
+		return QuestionAttempt::create(Array(
+			"attempt" => $attempt,
+			"question" => $this,
+			"answered" => null,
+			"correct" => false
+		)) -> save();
+	}
 }

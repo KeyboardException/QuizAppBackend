@@ -9,7 +9,6 @@ class Sandbox {
 	}
 
 	public static function test() {
-		$users = User::query() -> where("id", "=", 1) -> first();
-		return $users;
+		return randItem([1, 2]);
 	}
 }

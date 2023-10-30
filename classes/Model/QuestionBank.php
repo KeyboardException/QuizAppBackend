@@ -16,15 +16,18 @@ class QuestionBank extends Model {
 	public static $fillables = Array(
 		"id",
 		"name",
+		"icon",
 		"questions",
-		"max_attempts"
+		"maxAttempts" => "max_attempts"
 	);
 
 	public int $id;
 
 	public String $name;
 
+	public String $icon = null;
+
 	public int $questions;
 
-	public int $max_attempts;
+	public int $maxAttempts;
 }
