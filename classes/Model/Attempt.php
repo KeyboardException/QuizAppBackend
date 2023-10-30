@@ -31,6 +31,7 @@ class Attempt extends Model {
 		"user" => "user_id",
 		"bank" => "bank_id",
 		"total",
+		"status",
 		"correct",
 		"score",
 		"created"
@@ -48,9 +49,9 @@ class Attempt extends Model {
 
 	public String $status = Attempt::INPROGRESS;
 
-	public int $correct = null;
+	public ?int $correct = null;
 
-	public int $score = null;
+	public ?int $score = null;
 
 	public int $created;
 
@@ -91,9 +92,13 @@ class Attempt extends Model {
 		$this -> correct = $correct;
 		$this -> score = $score;
 
-		$this -> status = ($this -> total === $completed)
-			? static::COMPLETED
-			: static::INPROGRESS;
+		if ($this -> total === $completed) {
+			$this -> status = static::COMPLETED;
+			$this -> user -> update();
+		} else {
+			// Keep this in progress.
+			$this -> status = static::INPROGRESS;
+		}
 
 		$this -> save();
 
@@ -126,7 +131,7 @@ class Attempt extends Model {
 		}
 	}
 
-	protected function processField(String $name, $value) {
+	protected static function processField(String $name, $value) {
 		switch ($name) {
 			case "bank":
 				return QuestionBank::getByID($value, Model::MUST_EXIST);

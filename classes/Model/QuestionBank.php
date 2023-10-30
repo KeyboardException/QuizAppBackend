@@ -25,7 +25,7 @@ class QuestionBank extends Model {
 
 	public String $name;
 
-	public String $icon = null;
+	public ?String $icon = null;
 
 	public int $questions;
 

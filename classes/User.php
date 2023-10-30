@@ -1,52 +1,57 @@
 <?php
 
-use Blink\Exception\CodingError;
-use Blink\Exception\ModelInstanceNotFound;
+use Blink\Attribute\SensitiveField;
 use Blink\Model;
+use Model\Attempt;
 
-class User extends \Model\User {
+/**
+ * User model
+ * 
+ * @extends	Model<User>
+ */
+class User extends Model {
 
-	/**
-	 * Get instance of User, By ID.
-	 *
-	 * @param	int		$id
-	 * @param	int		$strict		Strictness. Default to IGNORE_MISSING, which will return null when instance not found.
-	 * @return	?User
-	 */
-	public static function getByID(
-		?int $id = null,
-		int $strict = Model::IGNORE_MISSING
-	): static|null {
-		if (static::class === self::class || static::class === 'Vloom\DB')
-			throw new CodingError(self::class . "::getByID(): this function can only be used on an inherited Model.");
+	public static String $table = "users";
 
-		if (empty($id)) {
-			if ($strict === Model::MUST_EXIST)
-				throw new ModelInstanceNotFound(static::class, $id);
+	public static $fillables = Array(
+		"id",
+		"username",
+		"name",
+		"email",
+		"password",
+		"score",
+		"created"
+	);
 
-			return null;
-		}
+	public int $id;
 
-		$instance = static::getInstance($id);
+	public String $username;
 
-		if (!empty($instance))
-			return $instance;
+	public String $name;
 
-		$instance = static::where(static::$primaryKey, $id);
-		$instance = $instance -> first();
+	public String $email;
 
-		if (empty($instance)) {
-			if ($strict === Model::MUST_EXIST)
-				throw new ModelInstanceNotFound(static::class, $id);
+	#[SensitiveField]
+	public String $password;
 
-			return null;
-		}
+	public float $score = 0;
 
-		return $instance;
+	public int $created;
+
+	public function update() {
+		$completed = Attempt::where("user_id", $this -> id)
+			-> all();
+
+		$score = 0;
+
+		foreach ($completed as $item)
+			$score += $item -> score;
+
+		$this -> score = $score;
+		$this -> save();
 	}
 
 	public static function getByUsername(String $username): User|null {
-		return static::where("username", $username)
-			-> first();
+		return static::where("username", $username) -> first();
 	}
 }

@@ -53,7 +53,7 @@ class Question extends Model {
 		}
 	}
 
-	protected function processField(String $name, $value) {
+	protected static function processField(String $name, $value) {
 		switch ($name) {
 			case "bank":
 				return QuestionBank::getByID($value, Model::MUST_EXIST);

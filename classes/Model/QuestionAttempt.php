@@ -56,7 +56,7 @@ class QuestionAttempt extends Model {
 		}
 	}
 
-	protected function processField(String $name, $value) {
+	protected static function processField(String $name, $value) {
 		switch ($name) {
 			case "attempt":
 				return Attempt::getByID($value, Model::MUST_EXIST);
