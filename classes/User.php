@@ -51,6 +51,12 @@ class User extends Model {
 		$this -> save();
 	}
 
+	public function jsonSerialize(int $depth = -1) {
+		$data = parent::jsonSerialize($depth);
+		$data["rank"] = User::where("score", ">", $this -> score) -> count() + 1;
+		return $data;
+	}
+
 	public static function getByUsername(String $username): User|null {
 		return static::where("username", $username) -> first();
 	}

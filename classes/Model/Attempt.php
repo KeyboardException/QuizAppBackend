@@ -67,8 +67,23 @@ class Attempt extends Model {
 
 		return Array(
 			"correct" => $questionAttempt -> correct,
+			"answer" => $question -> answer,
 			"state" => $this -> update()
 		);
+	}
+
+	public function complete() {
+		$qas = $this -> getQuestionAttempts();
+
+		foreach ($qas as $qa) {
+			if ($qa -> status === QuestionAttempt::WAITING) {
+				$qa -> status = QuestionAttempt::SKIPPED;
+				$qa -> correct = false;
+				$qa -> save();
+			}
+		}
+
+		$this -> update();
 	}
 
 	public function update() {
@@ -76,9 +91,10 @@ class Attempt extends Model {
 		$completed = 0;
 		$correct = 0;
 		$score = 0;
+		$questions = Array();
 
 		foreach ($qas as $qa) {
-			if ($qa -> status === QuestionAttempt::ANSWERED) {
+			if ($qa -> status !== QuestionAttempt::WAITING) {
 				$completed += 1;
 				
 				if ($qa -> correct) {
@@ -86,6 +102,18 @@ class Attempt extends Model {
 					$score += 10;
 				}
 			}
+
+			$questions[] = Array(
+				"status" => $qa -> status,
+				"question" => $qa -> question -> question,
+				"answer1" => $qa -> question -> answer1,
+				"answer2" => $qa -> question -> answer2,
+				"answer3" => $qa -> question -> answer3,
+				"answer4" => $qa -> question -> answer4,
+				"answered" => $qa -> answered,
+				"answer" => $qa -> question -> answer,
+				"correct" => $qa -> correct
+			);
 		}
 
 		$this -> total = count($qas);
@@ -98,6 +126,7 @@ class Attempt extends Model {
 		} else {
 			// Keep this in progress.
 			$this -> status = static::INPROGRESS;
+			$questions = null;
 		}
 
 		$this -> save();
@@ -106,6 +135,9 @@ class Attempt extends Model {
 			"status" => $this -> status,
 			"total" => $this -> total,
 			"completed" => $completed,
+			"user" => $this -> user,
+			"bank" => $this -> bank,
+			"questions" => $questions,
 			"result" => Array(
 				"correct" => $this -> correct,
 				"score" => $this -> score
@@ -202,6 +234,7 @@ class Attempt extends Model {
 			$data["questions"][] = Array(
 				"attempt" => $questionAttempt -> id,
 				"id" => $question -> id,
+				"question" => $question -> question,
 				"answer1" => $question -> answer1,
 				"answer2" => $question -> answer2,
 				"answer3" => $question -> answer3,
@@ -209,6 +242,24 @@ class Attempt extends Model {
 			);
 		}
 
-		return new APIResponse(0, "Started new question attempt", 200, $data);
+		return $data;
+	}
+
+	public function jsonSerialize(int $depth = -1) {
+		$data = parent::jsonSerialize($depth);
+		$answers = Array();
+		$qas = $this -> getQuestionAttempts();
+
+		foreach ($qas as $qa) {
+			if ($qa -> status === QuestionAttempt::SKIPPED || $qa -> status === QuestionAttempt::WAITING) {
+				$answers[] = $qa -> status;
+				continue;
+			}
+
+			$answers[] = ($qa -> correct) ? "correct" : "wrong";
+		}
+
+		$data["answers"] = $answers;
+		return $data;
 	}
 }

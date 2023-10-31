@@ -18,6 +18,8 @@ class QuestionAttempt extends Model {
 	
 	const ANSWERED = "answered";
 
+	const SKIPPED = "skipped";
+
 	public static String $table = "question_attempts";
 
 	public static $fillables = Array(
