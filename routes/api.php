@@ -5,7 +5,7 @@ use Controller\Attempt;
 use Controller\Auth;
 use Controller\QuestionBank;
 use Controller\Sandbox;
-use Controller\Game;
+use Controller\SensorController;
 use Controller\User;
 
 Router::ANY("/hello", [ Sandbox::class, "hello" ]);
@@ -25,5 +25,5 @@ Router::POST("/api/attempt/complete/{attemptId}", [ Attempt::class, "complete" ]
 Router::GET("/api/attempt/info/{attemptId}", [ Attempt::class, "info" ]);
 Router::POST("/api/attempt/{attemptId}/answer/{qaId}", [ Attempt::class, "answer" ]);
 
-Router::POST("/api/game/queue", [ Game::class, "queue" ]);
-Router::POST("/api/game/stopQueue", [ Game::class, "stopQueue" ]);
+Router::POST("/api/sensor", [ SensorController::class, "save" ]);
+Router::ANY("/api/sensor", [ SensorController::class, "fetch" ]);
