@@ -3,6 +3,7 @@
 use Blink\Router;
 use Controller\Attempt;
 use Controller\Auth;
+use Controller\CommentController;
 use Controller\QuestionBank;
 use Controller\Sandbox;
 use Controller\Game;
@@ -27,3 +28,6 @@ Router::POST("/api/attempt/{attemptId}/answer/{qaId}", [ Attempt::class, "answer
 
 Router::POST("/api/game/queue", [ Game::class, "queue" ]);
 Router::POST("/api/game/stopQueue", [ Game::class, "stopQueue" ]);
+
+Router::GET("/api/profile/{profileId}/comment", [ CommentController::class, "fetch" ]);
+Router::POST("/api/profile/{profileId}/comment", [ CommentController::class, "create" ]);
